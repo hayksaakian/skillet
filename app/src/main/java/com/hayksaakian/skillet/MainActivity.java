@@ -1,22 +1,16 @@
 package com.hayksaakian.skillet;
 
-import java.util.Locale;
-
-import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.support.v13.app.FragmentPagerAdapter;
-import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.app.*;
+import android.graphics.*;
+import android.os.*;
+import android.support.v13.app.*;
+import android.support.v4.view.*;
+import android.view.*;
+import android.widget.*;
+import android.widget.LinearLayout.*;
+import java.util.*;
+import android.util.*;
+import android.net.*;
 
 
 public class MainActivity extends Activity {
@@ -49,7 +43,35 @@ public class MainActivity extends Activity {
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setOnPageChangeListener(
+		new ViewPager.SimpleOnPageChangeListener(){
+			@Override
+			public void onPageSelected(int pos){
+				String t = Long.toString(System.currentTimeMillis());
+				String text = "";
+				if(pos == 0){
+					text = "Yes";
+				}else if(pos == 2){
+					text = "No";
+				}
+				if(pos != 1){
+					Toast.makeText(getApplicationContext(), text + " @ " + t, Toast.LENGTH_SHORT).show();
+					
+					new android.os.Handler().postDelayed(
+						new Runnable() {
+							public void run() {
+								mViewPager.setCurrentItem(1);
+								//Log.i("tag", "This'll run 300 milliseconds later");
+							}
+						}, 
+						300);
+				}
+				
+			}
+		}
+		);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+		mViewPager.setCurrentItem(1);
 
     }
 
@@ -89,7 +111,7 @@ public class MainActivity extends Activity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return PlaceholderFragment.newInstance(position);
         }
 
         @Override
@@ -137,7 +159,9 @@ public class MainActivity extends Activity {
 
         public PlaceholderFragment() {
         }
-
+		
+		ListView list;
+		
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
@@ -146,7 +170,28 @@ public class MainActivity extends Activity {
             int tab_num = args.getInt(ARG_SECTION_NUMBER);
 
             TextView label = (TextView)rootView.findViewById(R.id.section_label);
-            label.setText(Integer.toString(tab_num));
+			String text = "Food Here";
+			
+			if(tab_num == 0){
+				Integer.toString(tab_num);
+				text = "??😀";
+				rootView.setBackgroundColor(Color.GREEN);
+				label.setGravity(Gravity.RIGHT);
+			}else if (tab_num == 2){
+				text = "😬";
+				rootView.setBackgroundColor(Color.RED);
+				label.setGravity(Gravity.LEFT);
+			}else{
+				text = "Food Here";
+				ImageView photo = (ImageView)rootView.findViewById(R.id.photo);
+				// some pics https://api.imgur.com/2/album/w9nHF/images.json
+				photo.setImageURI(Uri.parse("http://i.imgur.com/NhDejjN.jpg"));
+			}
+			
+            label.setText(text);
+			
+			//list = (ListView)rootView.findViewById(R.id.list);
+			
             return rootView;
         }
     }
