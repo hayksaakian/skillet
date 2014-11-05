@@ -1,6 +1,77 @@
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" />
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+    <!-- pseudo background-->
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/skillet_background" />
+
+    <!--real layout-->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1"
+        android:gravity="center"
+        android:padding="8dp"
+        android:layout_margin="2dp">
+
+        <ImageButton
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:background="@drawable/round_button"
+            android:gravity="center_vertical|center_horizontal"
+            android:textColor="#fff"
+            android:layout_margin="6dp"
+            android:padding="14dp"
+            android:src="@drawable/dislike"
+            android:scaleType="fitCenter"
+            android:alpha=".65" />
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/round_button"
+            android:gravity="center_vertical|center_horizontal"
+            android:text="info"
+            android:textColor="#111"
+            android:layout_margin="12dp"
+            android:padding="3dp" />
+        <ImageButton
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:background="@drawable/round_button"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_margin="6dp"
+            android:padding="14dp"
+            android:src="@drawable/like"
+            android:scaleType="fitCenter"
+            android:alpha=".65" />
+
+        </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="96dp">
+
+        <com.andtinder.view.CardContainer
+            android:id="@+id/deck"
+            android:background="#0000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_marginTop="6dp"
+            android:layout_margin="18dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>
