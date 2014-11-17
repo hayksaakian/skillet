@@ -39,7 +39,8 @@ import org.w3c.dom.Text;
 
 public class MainActivity extends Activity {
 
-    String RECIPE_LIST = "http://api.bigoven.com/recipes?title_kw=olives&pg=1&rpp=20&api_key=dvxIJpI918Mtp38X944q334luLcaUUjb";
+    int recipe_page = 1;
+    String RECIPE_LIST = "http://api.bigoven.com/recipes?title_kw=olives&pg=%s&rpp=10&api_key=dvxIJpI918Mtp38X944q334luLcaUUjb";
     List<Recipe> recipesToDecide;
 //    Recipe currentRecipe;
 
@@ -47,10 +48,11 @@ public class MainActivity extends Activity {
 //    TextView main_title;
 
     OkHttpClient http = new OkHttpClient();
-    private CardContainer mCardContainer;
+    private CardContainer cardContainer;
     CardModel.OnCardDimissedListener cardDismissListener;
     CardModel.OnClickListener cardClickListener;
     RecipeCardStackAdapter cardAdapter;
+    int curCard = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,20 +66,29 @@ public class MainActivity extends Activity {
         }
 
 
-        mCardContainer = (CardContainer) findViewById(R.id.deck);
-//        mCardContainer.setOrientation(Orientations.Orientation.Ordered); // vs Disordered
-        mCardContainer.setOrientation(Orientations.Orientation.Disordered); // vs Disordered
+        cardContainer = (CardContainer) findViewById(R.id.deck);
+//        cardContainer.setOrientation(Orientations.Orientation.Ordered); // vs Disordered
+        cardContainer.setOrientation(Orientations.Orientation.Disordered); // vs Disordered
 
-        CardModel card = new CardModel("Title1", "Description goes here", getResources().getDrawable(R.drawable.picture1) );
         cardDismissListener = new CardModel.OnCardDimissedListener() {
+            // THESE ARE ACTUALLY REVERSED. THE LIBRARY IS WRONG
             @Override
-            public void onLike() {
-                Log.d("Swipeable Card", "I liked it");
+            public void onLike() { // really onDislike
+                curCard += 1;
+                Log.d("Swipeable Card", "I did not like it");
             }
 
             @Override
-            public void onDislike() {
-                Log.d("Swipeable Card", "I did not like it");
+            public void onDislike() { // really onLike
+                final Recipe recipe = ((RecipeCardModel)cardAdapter.getItem(curCard)).recipe;
+
+                Toast.makeText(getApplicationContext(), recipe.name, Toast.LENGTH_SHORT).show();
+                curCard += 1;
+
+                if(cardAdapter.getCount() <= curCard){
+                    getRecipeList();
+                }
+                Log.d("Swipeable Card", "I liked it " + Integer.toString(curCard)+ "/"+ Integer.toString(cardAdapter.getCount()) );
             }
         };
         cardClickListener = new CardModel.OnClickListener() {
@@ -88,9 +99,10 @@ public class MainActivity extends Activity {
         };
 
         cardAdapter = new RecipeCardStackAdapter(this);
-        cardAdapter.add(card);
-        mCardContainer.setAdapter(cardAdapter);
+        cardContainer.setAdapter(cardAdapter);
     }
+
+
 
     // keep the targets from being garbage collected
     List<Target> targets = new ArrayList<Target>();
@@ -107,13 +119,14 @@ public class MainActivity extends Activity {
                         Log.i("Swipeable Card", "I finished loading a card image");
                         // TODO Create your drawable from bitmap and append where you like.
                         Log.i("Swipeable Card", "Loaded Image" + " width: " + Integer.toString(bitmap.getWidth()) + " height: " + Integer.toString(bitmap.getHeight()));
-                        CardModel card = new CardModel(recipe.name, "", new BitmapDrawable(getResources(), bitmap));
+                        RecipeCardModel card = new RecipeCardModel(recipe.name, "", new BitmapDrawable(getResources(), bitmap));
+                        card.recipe = recipe;
                         card.setOnCardDimissedListener(cardDismissListener);
                         card.setOnClickListener(cardClickListener);
 //                        cardAdapter.
                         cardAdapter.add(card);
                         cardAdapter.notifyDataSetChanged();
-                        mCardContainer.setAdapter(cardAdapter);
+                        cardContainer.setAdapter(cardAdapter);
 
                         targets.remove(this);
                     }
@@ -124,7 +137,7 @@ public class MainActivity extends Activity {
 //                        CardModel card = new CardModel(recipe.name, "", arg0);
 //                        cardAdapter.add(card);
 //                        cardAdapter.notifyDataSetChanged();
-//                            mCardContainer.setAdapter(cardAdapter);
+//                            cardContainer.setAdapter(cardAdapter);
                     }
 
                     @Override
@@ -156,7 +169,7 @@ public class MainActivity extends Activity {
 
     void getRecipeList(){
         try {
-            httpGet(RECIPE_LIST, new Callback() {
+            httpGet(String.format(RECIPE_LIST, Integer.toString(recipe_page)), new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) { e.printStackTrace();}
 
@@ -173,6 +186,7 @@ public class MainActivity extends Activity {
                         for(Recipe recipe : recipesToDecide){
                             AddRecipe(recipe);
                         }
+                        recipe_page += 1;
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
